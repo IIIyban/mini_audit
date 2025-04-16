@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мини-Аудит бизнеса с Доктором Системного Бизнеса</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @keyframes pulse {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    @keyframes scan {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+
+    .scan-animation {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scan-animation::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(to bottom, rgba(59, 130, 246, 0.8), rgba(99, 102, 241, 0.8));
+      animation: scan 1.5s linear infinite;
+    }
+
+    .pyramid-level {
+      transition: all 0.3s ease;
+    }
+
+    .pyramid-level.active {
+      transform: scale(1.05);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .doctor-icon {
+      animation: pulse 2s infinite;
+    }
+
+    .fixed-cta {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 100;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .tool-item {
+      transition: all 0.2s ease;
+      background-color: #d1fae5;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .tool-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-telegram {
+      background: linear-gradient(135deg, #0088cc, #34aadc);
+    }
+    .btn-telegram:hover {
+      background: linear-gradient(135deg, #0077b5, #2d96c4);
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen font-sans">
+  <div class="container mx-auto px-4 py-8 max-w-3xl">
+    <!-- Шапка -->
+    <header class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-blue-600 mb-2">
+        <i class="fas fa-stethoscope mr-2"></i>Мини-Аудит бизнеса
+      </h1>
+      <p class="text-gray-600 flex justify-center items-center gap-2">
+        Автор: Александр Шубин
+        <a href="https://t.me/+iGeLZKkUI7tiOTcy" target="_blank" class="btn-telegram text-white px-3 py-1 rounded-lg text-sm hover:opacity-90 transition" title="Откроется Telegram-канал">
+          <i class="fab fa-telegram mr-1"></i>Телеграм канал
+        </a>
+      </p>
+    </header>
+
+    <!-- Основной контент -->
+    <main>
+      <!-- Вступление -->
+      <div id="intro-section" class="bg-white rounded-xl shadow-md p-6 mb-6 max-h-[80vh] overflow-y-auto fade-in">
+        <h2 class="text-2xl font-bold text-blue-600 mb-3">Что такое Мини-Аудит?</h2>
+        <p class="text-gray-700 mb-2">
+          Это бесплатная 5-минутная консультация, которая помогает осознать слабые места бизнеса и получить направления для роста.
+        </p>
+        <ul class="list-disc list-inside text-gray-700 mb-4">
+          <li>Разбираем 1 главную проблему</li>
+          <li>Выявляем на каком уровне она возникает</li>
+          <li>Предлагаем 4–6 конкретных инструментов</li>
+        </ul>
+        <p class="text-gray-600 italic mb-4">
+          Мини-аудит — это старт системных изменений, который не требует вложений.
+        </p>
+        <div class="text-center">
+          <button onclick="startDiagnostic()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">Начать диагностику</button>
+        </div>
+      </div>
+
+      <!-- Шаг 1: Выбор симптома -->
+      <div id="step-symptoms" class="bg-white rounded-xl shadow-md p-6 mb-6 hidden max-h-[80vh] overflow-y-auto">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-clipboard-list text-blue-500 mr-2"></i>Выберите симптомы вашего бизнеса:
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <button onclick="selectSymptom(0)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-user-clock text-red-500 mr-3"></i>Я всё делаю сам
+          </button>
+          <button onclick="selectSymptom(1)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-chart-line text-red-500 mr-3"></i>Нет продаж
+          </button>
+          <button onclick="selectSymptom(2)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-users text-red-500 mr-3"></i>Команда не работает
+          </button>
+          <button onclick="selectSymptom(3)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-fire-extinguisher text-red-500 mr-3"></i>Я выгорел
+          </button>
+          <button onclick="selectSymptom(4)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-trash text-red-500 mr-3"></i>В компании бардак
+          </button>
+          <button onclick="selectSymptom(5)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-robot text-red-500 mr-3"></i>Ничего не автоматизировано
+          </button>
+          <button onclick="selectSymptom(6)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-bullseye text-red-500 mr-3"></i>Нет целей
+          </button>
+          <button onclick="selectSymptom(7)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-hands-helping text-red-500 mr-3"></i>Боюсь делегировать
+          </button>
+          <button onclick="selectSymptom(8)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-compass text-red-500 mr-3"></i>Нет понимания миссии
+          </button>
+          <button onclick="selectSymptom(9)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-user-shield text-red-500 mr-3"></i>Всё зависит от меня
+          </button>
+          <button onclick="selectSymptom(10)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-calculator text-red-500 mr-3"></i>Не понимаю цифры
+          </button>
+          <button onclick="selectSymptom(11)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-wind text-red-500 mr-3"></i>Постоянный хаос
+          </button>
+          <button onclick="selectSymptom(12)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-lightbulb text-red-500 mr-3"></i>Команда не проявляет инициативу
+          </button>
+          <button onclick="selectSymptom(13)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-tasks text-red-500 mr-3"></i>Много дел, нет результата
+          </button>
+          <button onclick="selectSymptom(14)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-chess text-red-500 mr-3"></i>Нет стратегии развития
+          </button>
+          <button onclick="selectSymptom(15)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-search text-red-500 mr-3"></i>Отсутствует контроль
+          </button>
+          <button onclick="selectSymptom(16)" class="symptom-btn p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition flex items-center">
+            <i class="fas fa-user-plus text-red-500 mr-3"></i>Не могу найти сотрудников
+          </button>
+        </div>
+      </div>
+
+      <!-- Шаг 2: Сканирование -->
+      <div id="step-scan" class="bg-gray-100 rounded-xl shadow-md p-6 mb-6 hidden scan-animation">
+        <div class="text-center">
+          <div class="mb-4">
+            <div class="doctor-icon inline-block bg-white p-4 rounded-full shadow-lg mb-3">
+              <i class="fas fa-user-md text-4xl text-blue-600"></i>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-800">Доктор системного бизнеса думает...</h2>
+            <p class="text-gray-600">Идёт анализ выбранного симптома...</p>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+            <div id="scan-progress" class="bg-blue-600 h-4 rounded-full" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Шаг 3: Результат сканирования -->
+      <div id="step-result" class="bg-white rounded-xl shadow-md p-6 mb-6 hidden max-h-[80vh] overflow-y-auto">
+        <div class="flex flex-col md:flex-row gap-6">
+          <div class="md:w-1/3">
+            <div class="bg-blue-50 rounded-lg p-4 text-center">
+              <div id="monster-icon" class="text-5xl mb-3">
+                <i class="fas fa-virus"></i>
+              </div>
+              <h3 id="monster-name" class="font-bold text-lg text-red-600 mb-1">Вирус Делегирования</h3>
+              <p id="monster-level" class="text-sm text-blue-800">Уровень: Поведение</p>
+            </div>
+
+            <!-- Пирамида Дилтса -->
+            <div class="mt-6">
+              <h4 class="font-medium text-gray-700 mb-2 text-center">Уровень проблемы:</h4>
+              <div class="space-y-1">
+                <div id="level-mission" class="pyramid-level bg-gray-100 text-xs p-2 rounded text-center">Миссия</div>
+                <div id="level-identity" class="pyramid-level bg-gray-100 text-xs p-2 rounded text-center">Идентичность</div>
+                <div id="level-values" class="pyramid-level bg-gray-100 text-xs p-2 rounded text-center">Ценности</div>
+                <div id="level-beliefs" class="pyramid-level bg-gray-100 text-xs p-2 rounded text-center">Убеждения</div>
+                <div id="level-abilities" class="pyramid-level bg-gray-100 text-xs p-2 rounded text-center">Способности</div>
+                <div id="level-behavior" class="pyramid-level bg-gray-100 text-xs p-2 rounded text-center">Поведение</div>
+                <div id="level-environment" class="pyramid-level bg-gray-100 text-xs p-2 rounded text-center">Окружение</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="md:w-2/3">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Результат диагностики</h2>
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+              <p id="diagnosis-text" class="text-yellow-700">Выявлен Вирус Делегирования на уровне Поведения. Это означает, что вы не доверяете задачи своей команде и берете все на себя.</p>
+            </div>
+
+            <!-- Цитата от Доктора -->
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 rounded-lg">
+              <p class="text-blue-800 italic">"Вы можете делать всё сами, но вы не обязаны. Самое эффективное — строить систему."</p>
+              <p class="text-right text-sm text-gray-500 mt-1">— Доктор Системного Бизнеса</p>
+            </div>
+
+            <!-- Рекомендации -->
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+              <h3 class="font-bold text-lg text-green-700 mb-2">Рекомендации:</h3>
+              <div id="treatment-text" class="text-green-800 space-y-2">
+                <p>1. Составьте список всех задач, которые выполняете лично</p>
+                <p>2. Определите, какие из них можно делегировать</p>
+                <p>3. Проведите обучение сотрудников</p>
+                <p>4. Внедрите систему контроля качества</p>
+              </div>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button onclick="restartDiagnostic()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center">
+                <i class="fas fa-redo mr-2"></i> Проверить другой симптом
+              </button>
+              <button onclick="showConsultationModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center">
+                <i class="fas fa-comment-medical mr-2"></i> Консультация эксперта
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Инструменты -->
+      <div id="tools-section" class="bg-white rounded-xl shadow-md p-6 mb-6 hidden max-h-[80vh] overflow-y-auto">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-tools text-blue-500 mr-2"></i>Инструменты, которые могут помочь
+        </h2>
+        <div class="mb-4" id="tools-container">
+          <!-- Инструменты будут добавляться динамически -->
+        </div>
+        <div class="text-center">
+          <a href="https://t.me/+iGeLZKkUI7tiOTcy" target="_blank" class="inline-block btn-telegram text-white px-4 py-2 rounded-lg hover:opacity-90 transition" title="Откроется Telegram-канал">
+            <i class="fas fa-book mr-2"></i>Почитать об инструментах в телеграм канале Доктор системного бизнеса
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <!-- Прогресс -->
+    <footer class="bg-white rounded-xl shadow-md p-4 mt-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <span class="text-sm text-gray-600"><i class="fas fa-virus text-red-500 mr-1"></i> <span id="viruses-found">0</span> вирусов выявлено</span>
+        </div>
+        <div>
+          <span class="text-sm text-gray-600"><i class="fas fa-layer-group text-blue-500 mr-1"></i> <span id="levels-analyzed">0</span> уровней проанализировано</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Фиксированная кнопка консультации -->
+  <div class="fixed-cta">
+    <button onclick="showConsultationModal()" class="bg-green-600 text-white px-4 py-3 rounded-full shadow-lg hover:bg-green-700 transition flex items-center">
+      <i class="fas fa-comment-medical mr-2"></i>
+      <span class="hidden sm:inline">Консультация</span>
+    </button>
+  </div>
+
+  <!-- Модальное окно консультации -->
+  <div id="consultation-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-gray-800">Получить консультацию от Доктора Системного Бизнеса — Александра Шубина</h3>
+        <button onclick="hideConsultationModal()" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="space-y-6">
+        <!-- Мини-Аудит -->
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <div class="flex items-start">
+            <div class="bg-blue-100 p-3 rounded-full mr-4">
+              <i class="fas fa-stethoscope text-blue-600 text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-lg text-blue-800 mb-2">Мини-Аудит (бесплатно, 40 минут)</h4>
+              <ul class="list-disc list-inside text-blue-700 space-y-1 mb-3">
+                <li>Быстрая диагностика одной проблемы</li>
+                <li>Онлайн (Zoom/Telegram)</li>
+                <li>Выявим 1 "вирус" и предложим решение</li>
+              </ul>
+              <a href="https://t.me/+iGeLZKkUI7tiOTcy?start=mini_audit" target="_blank" class="inline-block btn-telegram text-white px-4 py-2 rounded-lg hover:opacity-90 transition" title="Откроется Telegram-канал">
+                <i class="fas fa-info-circle mr-2"></i>Узнать про Мини-Аудит
+              </a>
+              <p class="text-xs text-gray-500 mt-2">При нажатии откроется Telegram с сообщением: "Хочу Мини-Аудит бесплатно"</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Бизнес-Разбор -->
+        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+          <div class="flex items-start">
+            <div class="bg-purple-100 p-3 rounded-full mr-4">
+              <i class="fas fa-search-plus text-purple-600 text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-lg text-purple-800 mb-2">Бизнес-Разбор (25 000 ₽, 1.5–2 часа)</h4>
+              <ul class="list-disc list-inside text-purple-700 space-y-1 mb-3">
+                <li>Глубокая диагностика 2–3 проблем</li>
+                <li>Анализ по логическим уровнял</li>
+                <li>PDF-отчёт с рекомендациями</li>
+              </ul>
+              <a href="https://t.me/+iGeLZKkUI7tiOTcy?start=biz_razbor" target="_blank" class="inline-block btn-telegram text-white px-4 py-2 rounded-lg hover:opacity-90 transition" title="Откроется Telegram-канал">
+                <i class="fas fa-info-circle mr-2"></i>Узнать про Бизнес-Разбор
+              </a>
+              <p class="text-xs text-gray-500 mt-2">При нажатии откроется Telegram с сообщением: "Хочу Бизнес Разбор за 25 000"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Данные о симптомах и соответствующих проблемах
+    const symptomsData = [
+      {
+        symptom: "Я всё делаю сам",
+        monster: "Вирус Делегирования",
+        level: "behavior",
+        levelName: "Поведение",
+        diagnosis: "Выявлен Вирус Делегирования на уровне Поведения. Это означает, что вы не доверяете задачи своей команде и берете все на себя.",
+        treatment: [
+          "1. Составьте список всех задач, которые выполняете лично",
+          "2. Определите, какие из них можно делегировать",
+          "3. Проведите обучение сотрудников",
+          "4. Внедрите систему контроля качества"
+        ],
+        tools: ["Матрица ответственности (RACI)", "Регламент", "Чек-лист", "Профиль должности"],
+        quote: "Вы можете делать всё сами, но вы не обязаны. Самое эффективное — строить систему."
+      },
+      {
+        symptom: "Нет продаж",
+        monster: "Монстр Воронки",
+        level: "environment",
+        levelName: "Окружение",
+        diagnosis: "Обнаружен Монстр Воронки на уровне Окружения. Это означает, что ваша система продаж неэффективна или вы работаете с неправильной ЦА.",
+        treatment: [
+          "1. Проанализируйте воронку продаж",
+          "2. Определите узкие места",
+          "3. Оптимизируйте каждый этап воронки",
+          "4. Настройте систему лидогенерации"
+        ],
+        tools: ["CRM", "ХСР", "SCORE", "KPI"],
+        quote: "Продажи — это система. Если её нет, вы зависите от случая и удачи."
+      },
+      {
+        symptom: "Команда не работает",
+        monster: "Вирус Мотивации",
+        level: "beliefs",
+        levelName: "Убеждения",
+        diagnosis: "Диагностирован Вирус Мотивации на уровне Убеждений. Ваша команда не разделяет ценности бизнеса или не верит в успех.",
+        treatment: [
+          "1. Проведите встречу с командой для обсуждения ценностей",
+          "2. Чётко сформулируйте миссию компании",
+          "3. Внедрите систему KPI и бонусов",
+          "4. Регулярно давайте обратную связь"
+        ],
+        tools: ["KPI", "Пирамида логических уровней", "Миссия компании", "Система мотивации"],
+        quote: "Мотивация — это не деньги. Это понимание смысла и ценности того, что ты делаешь."
+      },
+      {
+        symptom: "Я выгорел",
+        monster: "Огненный Дракон",
+        level: "values",
+        levelName: "Ценности",
+        diagnosis: "Обнаружен Огненный Дракон на уровне Ценностей. Вы потеряли связь с тем, что для вас действительно важно в бизнесе.",
+        treatment: [
+          "1. Возьмите паузу 2-3 дня для перезагрузки",
+          "2. Пересмотрите свои ценности и приоритеты",
+          "3. Делегируйте рутинные задачи",
+          "4. Найдите новые источники вдохновения"
+        ],
+        tools: ["Пирамида логических уровней", "Миссия компании", "Матрица Эйзенхауэра", "Тайм-менеджмент"],
+        quote: "Выгорание — сигнал, что вы делаете не то или не так. Прислушайтесь к себе."
+      },
+      {
+        symptom: "В компании бардак",
+        monster: "Хаос-Монстр",
+        level: "abilities",
+        levelName: "Способности",
+        diagnosis: "Выявлен Хаос-Монстр на уровне Способностей. Вам не хватает системного подхода к организации процессов.",
+        treatment: [
+          "1. Документируйте все ключевые процессы",
+          "2. Внедрите систему управления задачами (Trello, Asana)",
+          "3. Создайте регламенты работы",
+          "4. Назначьте ответственных за процессы"
+        ],
+        tools: ["Регламент", "Чек-лист", "Организационная структура", "Матрица ответственности (RACI)"],
+        quote: "Порядок — это не про контроль, а про предсказуемость и эффективность."
+      },
+      {
+        symptom: "Ничего не автоматизировано",
+        monster: "Робот-Разрушитель",
+        level: "abilities",
+        levelName: "Способности",
+        diagnosis: "Обнаружен Робот-Разрушитель на уровне Способностей. Вы не используете современные инструменты автоматизации.",
+        treatment: [
+          "1. Проведите аудит рутинных операций",
+          "2. Автоматизируйте учёт (1С, МойСклад)",
+          "3. Внедрите CRM-систему",
+          "4. Настройте email-рассылки и чат-ботов"
+        ],
+        tools: ["CRM", "1С", "AI-автоматизация", "Телефония"],
+        quote: "Автоматизируйте всё, что можно автоматизировать. Ваше время стоит дорого."
+      },
+      {
+        symptom: "Нет целей",
+        monster: "Туманный Призрак",
+        level: "mission",
+        levelName: "Миссия",
+        diagnosis: "Выявлен Туманный Призрак на уровне Миссии. Ваш бизнес существует без чёткого видения и долгосрочных целей.",
+        treatment: [
+          "1. Определите миссию компании",
+          "2. Поставьте SMART-цели на 1, 3 и 5 лет",
+          "3. Разработайте стратегию достижения",
+          "4. Донесите цели до всей команды"
+        ],
+        tools: ["SMART", "ХСР", "Пирамида логических уровней", "Стратегия развития"],
+        quote: "Без цели вы идёте куда угодно. С целью — туда, куда запланировали."
+      },
+      {
+        symptom: "Боюсь делегировать",
+        monster: "Вирус Контроля",
+        level: "beliefs",
+        levelName: "Убеждения",
+        diagnosis: "Обнаружен Вирус Контроля на уровне Убеждений. Вы считаете, что только вы можете сделать работу правильно.",
+        treatment: [
+          "1. Начните с малого - делегируйте простые задачи",
+          "2. Разработайте чек-листы для контроля качества",
+          "3. Примите, что ошибки сотрудников - часть процесса обучения",
+          "4. Фокусируйтесь на стратегических задачи"
+        ],
+        tools: ["Матрица ответственности (RACI)", "Чек-лист", "Регламент", "KPI"],
+        quote: "Делегирование — это не потеря контроля, а умножение возможностей."
+      },
+      {
+        symptom: "Нет понимания миссии",
+        monster: "Туманный Призрак",
+        level: "mission",
+        levelName: "Миссия",
+        diagnosis: "Выявлен Туманный Призрак на уровне Миссии. Ваш бизнес существует без чёткого видения и долгосрочных целей.",
+        treatment: [
+          "1. Ответьте на вопрос: 'Зачем существует мой бизнес?'",
+          "2. Определите, какую ценность вы создаёте для клиентов",
+          "3. Сформулируйте миссию в одном предложении",
+          "4. Донесите миссию до всех сотрудников"
+        ],
+        tools: ["Миссия компании", "Пирамида логических уровней", "SMART", "ХСР"],
+        quote: "Миссия — это не красивые слова, а компас для принятия решений."
+      },
+      {
+        symptom: "Всё зависит от меня",
+        monster: "Вирус Перфекционизма",
+        level: "identity",
+        levelName: "Идентичность",
+        diagnosis: "Диагностирован Вирус Перфекционизма на уровне Идентичности. Вы отождествляете себя с бизнесом настолько, что не можете отпустить контроль.",
+        treatment: [
+          "1. Разделите личность и бизнес - это разные вещи",
+          "2. Развивайте лидерские качества вместо исполнительских",
+          "3. Создайте систему, которая работает без вашего постоянного участия",
+          "4. Начните строить бизнес, а не работу"
+        ],
+        tools: ["Матрица ответственности (RACI)", "Организационная структура", "Регламент", "Чек-лист"],
+        quote: "Бизнес — это система, а не вы. Ваша задача — создать и улучшать систему."
+      },
+      {
+        symptom: "Не понимаю цифры",
+        monster: "Цифровой Демон",
+        level: "abilities",
+        levelName: "Способности",
+        diagnosis: "Обнаружен Цифровой Демон на уровне Способностей. Вам не хватает финансовой грамотности для управления бизнесом.",
+        treatment: [
+          "1. Изучите основы финансового учёта",
+          "2. Внедрите систему ежемесячных отчётов (P&L, ДДС)",
+          "3. Определите ключевые метрики бизнеса",
+          "4. Наймите финансового консультанта для обучения"
+        ],
+        tools: ["Финансовая модель", "Отчёт ДДС", "Отчёт P&L", "Балансовый отчёт"],
+        quote: "Цифры — это язык бизнеса. Если вы его не понимаете, вы играете вслепую."
+      },
+      {
+        symptom: "Постоянный хаос",
+        monster: "Хаос-Монстр",
+        level: "abilities",
+        levelName: "Способности",
+        diagnosis: "Выявлен Хаос-Монстр на уровне Способностей. Вам не хватает системного подхода к организации процессов.",
+        treatment: [
+          "1. Документируйте все ключевые процессы",
+          "2. Внедрите систему управления задачами (Trello, Asana)",
+          "3. Создайте регламенты работы",
+          "4. Назначьте ответственных за процессы"
+        ],
+        tools: ["Регламент", "Чек-лист", "Организационная структура", "Матрица ответственности (RACI)"],
+        quote: "Хаос — это дорого. Порядок — это инвестиция в будущее."
+      },
+      {
+        symptom: "Команда не проявляет инициативу",
+        monster: "Вирус Пассивности",
+        level: "values",
+        levelName: "Ценности",
+        diagnosis: "Обнаружен Вирус Пассивности на уровне Ценностей. В вашей компании не поощряется инициатива и самостоятельность.",
+        treatment: [
+          "1. Внедрите систему поощрения инициативы",
+          "2. Давайте сотрудникам больше автономии",
+          "3. Разрешите ошибаться и учиться на ошибках",
+          "4. Развивайте культуру предпринимательства в команде"
+        ],
+        tools: ["KPI", "Система мотивации", "Пирамида логических уровней", "Миссия компании"],
+        quote: "Инициатива — это не врождённое качество, а результат правильной среды."
+      },
+      {
+        symptom: "Много дел, нет результата",
+        monster: "Беличье Колесо",
+        level: "behavior",
+        levelName: "Поведение",
+        diagnosis: "Выявлено Беличье Колесо на уровне Поведения. Вы заняты рутиной вместо важных стратегических задач.",
+        treatment: [
+          "1. Применяйте матрицу Эйзенхауэра для расстановки приоритетов",
+          "2. Фокусируйтесь на 20% задач, которые дают 80% результата",
+          "3. Внедрите тайм-менеджмент (например, Pomodoro)",
+          "4. Делегируйте или автоматизируйте рутинные операции"
+        ],
+        tools: ["Матрица Эйзенхауэра", "Тайм-менеджмент", "SMART", "ХСР"],
+        quote: "Занятость — это не продуктивность. Фокус — на важном, а не на срочном."
+      },
+      {
+        symptom: "Нет стратегии развития",
+        monster: "Туманный Призрак",
+        level: "mission",
+        levelName: "Миссия",
+        diagnosis: "Выявлен Туманный Призрак на уровне Миссии. Ваш бизнес существует без чёткого видения и долгосрочных целей.",
+        treatment: [
+          "1. Определите миссию компании",
+          "2. Поставьте SMART-цели на 1, 3 и 5 лет",
+          "3. Разработайте стратегию достижения",
+          "4. Донесите цели до всей команды"
+        ],
+        tools: ["SMART", "ХСР", "Пирамида логических уровней", "Стратегия развития"],
+        quote: "Без стратегии вы реагируете. Со стратегией — действуете."
+      },
+      {
+        symptom: "Отсутствует контроль",
+        monster: "Вирус Бесконтрольности",
+        level: "abilities",
+        levelName: "Способности",
+        diagnosis: "Диагностирован Вирус Бесконтрольности на уровне Способностей. Вам не хватает системы контроля и отчётности.",
+        treatment: [
+          "1. Внедрите регулярные планерки и отчёты",
+          "2. Определите ключевые показатели (KPI) для контроля",
+          "3. Используйте dashboards для визуализации данных",
+          "4. Назначьте ответственных за контроль процессов"
+        ],
+        tools: ["KPI", "Отчёт ДДС", "Отчёт P&L", "CRM"],
+        quote: "Контроль — это не про недоверие, а про управление и развитие."
+      },
+      {
+        symptom: "Не могу найти сотрудников",
+        monster: "Вирус Кадрового Голода",
+        level: "environment",
+        levelName: "Окружение",
+        diagnosis: "Обнаружен Вирус Кадрового Голода на уровне Окружения. Ваши методы поиска и отбора персонала неэффективны.",
+        treatment: [
+          "1. Разработайте привлекательный Employer Brand",
+          "2. Используйте несколько каналов поиска (hh, LinkedIn, рекомендации)",
+          "3. Создайте систему тестовых заданий для отбора",
+          "4. Улучшите onboarding процесс для новых сотрудников"
+        ],
+        tools: ["Профиль должности", "Чек-лист найма", "Система оценки", "Onboarding процесс"],
+        quote: "Хорошие сотрудники не ищут работу. Они ищут смысл и развитие."
+      }
+    ];
+
+    // Текущее состояние
+    let currentState = {
+      selectedSymptom: null,
+      virusesFound: 0,
+      levelsAnalyzed: []
+    };
+
+    // Инициализация инструментов
+    function initTools(tools) {
+      const toolsContainer = document.getElementById('tools-container');
+      toolsContainer.innerHTML = '';
+      
+      tools.forEach(tool => {
+        const toolElement = document.createElement('div');
+        toolElement.className = 'tool-item bg-green-100 p-3 rounded-lg mb-2 flex items-center';
+        toolElement.innerHTML = `
+          <input type="checkbox" checked disabled class="mr-2 accent-green-600">
+          <span class="font-medium text-gray-800">${tool}</span>
+        `;
+        toolsContainer.appendChild(toolElement);
+      });
+    }
+
+    // Начать диагностику
+    function startDiagnostic() {
+      document.getElementById('intro-section').classList.add('hidden');
+      document.getElementById('step-symptoms').classList.remove('hidden');
+    }
+
+    // Выбор симптома
+    function selectSymptom(index) {
+      currentState.selectedSymptom = index;
+      
+      // Показываем анимацию сканирования
+      document.getElementById('step-symptoms').classList.add('hidden');
+      document.getElementById('step-scan').classList.remove('hidden');
+      
+      // Анимация прогресса сканирования
+      let progress = 0;
+      const progressBar = document.getElementById('scan-progress');
+      const interval = setInterval(() => {
+        progress += 5;
+        progressBar.style.width = `${progress}%`;
+        
+        if (progress >= 100) {
+          clearInterval(interval);
+          showScanResult();
+        }
+      }, 150);
+    }
+
+    // Показать результат сканирования
+    function showScanResult() {
+      const symptomData = symptomsData[currentState.selectedSymptom];
+      
+      // Обновляем статистику
+      currentState.virusesFound += 1;
+      if (!currentState.levelsAnalyzed.includes(symptomData.level)) {
+        currentState.levelsAnalyzed.push(symptomData.level);
+      }
+      
+      // Обновляем UI
+      document.getElementById('viruses-found').textContent = currentState.virusesFound;
+      document.getElementById('levels-analyzed').textContent = currentState.levelsAnalyzed.length;
+      
+      // Заполняем данные о проблеме
+      document.getElementById('monster-name').textContent = symptomData.monster;
+      document.getElementById('monster-level').textContent = `Уровень: ${symptomData.levelName}`;
+      document.getElementById('diagnosis-text').textContent = symptomData.diagnosis;
+      
+      // Заполняем рекомендации
+      const treatmentContainer = document.getElementById('treatment-text');
+      treatmentContainer.innerHTML = symptomData.treatment.join('<br>');
+      
+      // Устанавливаем цитату
+      const quoteContainer = document.querySelector('.bg-blue-50.border-l-4.border-blue-500 p');
+      quoteContainer.textContent = `"${symptomData.quote}"`;
+      
+      // Устанавливаем иконку в зависимости от типа проблемы
+      const monsterIcon = document.getElementById('monster-icon');
+      monsterIcon.innerHTML = '';
+      if (symptomData.monster.includes('Вирус')) {
+        monsterIcon.innerHTML = '<i class="fas fa-virus text-red-500"></i>';
+      } else if (symptomData.monster.includes('Монстр')) {
+        monsterIcon.innerHTML = '<i class="fas fa-biohazard text-orange-500"></i>';
+      } else if (symptomData.monster.includes('Дракон')) {
+        monsterIcon.innerHTML = '<i class="fas fa-dragon text-purple-500"></i>';
+      } else {
+        monsterIcon.innerHTML = '<i class="fas fa-ghost text-blue-500"></i>';
+      }
+      
+      // Подсвечиваем уровень в пирамиде
+      document.querySelectorAll('.pyramid-level').forEach(el => el.classList.remove('active', 'bg-blue-100', 'font-medium'));
+      document.getElementById(`level-${symptomData.level}`).classList.add('active', 'bg-blue-100', 'font-medium');
+      
+      // Инициализируем только рекомендованные инструменты
+      initTools(symptomData.tools);
+      
+      // Показываем результат
+      document.getElementById('step-scan').classList.add('hidden');
+      document.getElementById('step-result').classList.remove('hidden');
+      document.getElementById('tools-section').classList.remove('hidden');
+    }
+
+    // Начать заново
+    function restartDiagnostic() {
+      document.getElementById('step-result').classList.add('hidden');
+      document.getElementById('tools-section').classList.add('hidden');
+      document.getElementById('step-symptoms').classList.remove('hidden');
+    }
+
+    // Показать модальное окно консультации
+    function showConsultationModal() {
+      document.getElementById('consultation-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Скрыть модальное окно консультации
+    function hideConsultationModal() {
+      document.getElementById('consultation-modal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Закрыть модальное окно при клике вне его
+    window.onclick = function(event) {
+      const modal = document.getElementById('consultation-modal');
+      if (event.target == modal) {
+        hideConsultationModal();
+      }
+    }
+  </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=Biznessdoctor/mvp" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+
+</html>
